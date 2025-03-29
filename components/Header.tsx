@@ -53,11 +53,11 @@ const Header = () => {
             <div
               className="header-dropdown"
               onClick={() => {
-                router.push("/upload");
+                router.push("/list");
                 setOpen(false);
               }}
             >
-              <p className="label-large">Upload PDF</p>
+              <p className="label-large">View list</p>
             </div>
             <div
               className="header-dropdown"

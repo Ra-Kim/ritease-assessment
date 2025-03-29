@@ -13,14 +13,14 @@ const Sidebar = () => {
         <ul>
           <SidebarItem name={"Home"} active={pathname === "/"} link={"/"} />
           <SidebarItem
-            name={"Upload"}
-            active={pathname === "/upload"}
-            link={"/upload"}
-          />
-          <SidebarItem
             name={"PDF"}
             active={pathname === "/pdf"}
             link={"/pdf"}
+          />
+          <SidebarItem
+            name={"List"}
+            active={pathname === "/list"}
+            link={"/list"}
           />
         </ul>
       </div>

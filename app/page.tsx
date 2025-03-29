@@ -1,76 +1,146 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { Folder2 } from "iconsax-react";
+import { useCallback, useState } from "react";
+import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
+import Image from "next/image";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import { FileRecord } from "@/types";
 
-export default function Home() {
-  const [pdfs, setPdfs] = useState<FileRecord[]>([]);
+const Upload = () => {
+  const [preview, setPreview] = useState<FileRecord>({
+    file_url: "",
+    file_name: "",
+    file_type: "",
+  });
   const router = useRouter();
+  const onDrop = useCallback(
+    (acceptedFiles: readonly FileWithPath[]) => {
+      acceptedFiles.map((file) => {
+        const files = new FileReader();
+        files.onload = () => {
+          if (typeof files.result === "string") {
+            setPreview({
+              ...preview,
+              file_url: files.result,
+              file_name: file.name,
+              file_type: file.type,
+            });
+          } else {
+            toast.error("Invalid file type");
+          }
+        };
+        toast.success("upload successful");
+        files.readAsDataURL(file);
+      });
+    },
+    [preview]
+  );
 
-  useEffect(() => {
-    const storedFiles = JSON.parse(localStorage.getItem("pdfs") || "[]");
-    setPdfs(storedFiles);
+  const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
+    fileRejections.forEach((file: FileRejection) => {
+      const errorMessage = file.errors
+        .map((err: { message: string }) => err.message)
+        .join(", ");
+      toast.error(`File rejected: ${file.file.name}. Reason: ${errorMessage}`);
+    });
   }, []);
 
-  const handleClick = (pdf: {
-    file_name: string;
-    file_type: string;
-    file_url: string;
-  }) => {
-    localStorage.setItem("pdf", JSON.stringify(pdf)); // Set clicked file as active
-    router.push("/pdf"); // Navigate to the PDF page
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      "application/pdf": [".pdf"],
+    },
+    multiple: false,
+    onDrop,
+    onDropRejected,
+  });
+
+  const addToUploadedArray = () => {
+    const storedFiles = JSON.parse(localStorage.getItem("pdfs") || "[]");
+  
+    // Add new file at the beginning
+    const updatedFiles = [preview, ...storedFiles].slice(0, 5);
+  
+    // Save updated array back to localStorage
+    localStorage.setItem("pdfs", JSON.stringify(updatedFiles));
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-5">
-        <h1 className="text-2xl font-bold">Recently Uploaded PDFs</h1>
+    <div className="w-[90%] lg:w-1/2 mx-auto">
+      <p className="lg:text-3xl dar:text-white text-center mt-12 font-bold">
+        Upload your PDF here
+      </p>
+      {preview.file_url ? (
+        <div
+          className="h-52 mt-12 text-[#919094] dark:text-white border border-dashed w-full rounded flex flex-col items-center justify-center gap-4 text-[12px] cursor-pointer"
+          {...getRootProps()}
+        >
+          <Image
+            src={`/assets/filetypespdf.svg`}
+            alt=""
+            height={20}
+            width={20}
+          />
+          {preview?.file_name && <p className="text-lg">{preview.file_name}</p>}
+          <input {...getInputProps()} />
+        </div>
+      ) : (
+        <div
+          className="h-52 mt-12 text-[#919094] dark:text-white border border-dashed w-full rounded flex flex-col items-center justify-center gap-4 text-[12px] cursor-pointer"
+          {...getRootProps()}
+        >
+          {isDragActive ? (
+            <p className="text-[#475569] dark:text-white font-medium">
+              Drop the files here...
+            </p>
+          ) : (
+            <>
+              <Folder2 className="h-6 w-6" />
+              <div className="text-center flex flex-col items-center gap-1">
+                <p className="text-[#64748B] dark:text-white font-medium">
+                  Drop your files or click to upload
+                </p>
+                <p className="text-[#94A3B8]">
+                  Supported files types: PDF, XLS, DOCX
+                </p>
+              </div>
+              <Button
+                variant={"outline"}
+                className="w-[60px] h-6 cursor-pointer"
+              >
+                Browse
+              </Button>
+              <input {...getInputProps()} />
+            </>
+          )}
+        </div>
+      )}
+      <div className="mb-4 mt-12 flex flex-col gap-4 justify-end">
         <Button
-          className={`w-fit dark:bg-white dark:text-[#333] bg-gray-500 text-white cursor-pointer`}
+          className={`w-full border border-border cursor-pointer`}
+          disabled={!preview?.file_url}
+          onClick={() =>
+            setPreview({ file_url: "", file_name: "", file_type: "" })
+          }
+          variant={"ghost"}
+        >
+          Reset
+        </Button>
+        <Button
+          className={`w-full dark:bg-white dark:text-[#333] bg-gray-500 text-white cursor-pointer`}
+          disabled={!preview.file_url}
           onClick={() => {
-            router.push("upload");
+            localStorage.setItem("pdf", JSON.stringify(preview));
+            addToUploadedArray();
+            router.push("/pdf");
           }}
         >
-          <PlusCircle className="h-6 w-6" />
-          <p className="hidden lg:block">Click to upload a pdf</p>
+          Continue
         </Button>
       </div>
-      {pdfs.length > 0 ? (
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="">
-              <th className="border border-gray-300 px-4 py-2">#</th>
-              <th className="border border-gray-300 px-4 py-2">File Name</th>
-              <th className="border border-gray-300 px-4 py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pdfs.slice(0, 4).map((pdf, index) => (
-              <tr key={index} className="">
-                <td className="border border-gray-300 px-4 py-2 text-center">
-                  {index + 1}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {pdf.file_name}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 text-center">
-                  <button
-                    onClick={() => handleClick(pdf)}
-                    className="text-blue-500 hover:underline curosr-pointer"
-                  >
-                    View PDF
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p className="text-gray-500">No PDFs uploaded yet.</p>
-      )}
     </div>
   );
-}
+};
+
+export default Upload;
