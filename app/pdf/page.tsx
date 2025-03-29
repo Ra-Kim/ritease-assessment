@@ -2,6 +2,7 @@
 
 import { FileRecord } from "@/types";
 import { Instance } from "@nutrient-sdk/viewer";
+import Link from "next/link";
 import { useRef, useEffect, useState, useCallback } from "react";
 
 export default function PDFAnnotator() {
@@ -19,7 +20,7 @@ export default function PDFAnnotator() {
     localStorage.setItem("downloaded-pdfs", JSON.stringify(updatedFiles));
   }, []);
 
-  // Define download function and store it in useRef 
+  // Define download function and store it in useRef
   // to store the value in local storage
   const downloadPdf = useCallback(async () => {
     const instance = instanceRef.current;
@@ -28,7 +29,7 @@ export default function PDFAnnotator() {
     try {
       const buffer = await instance.exportPDF();
       const firstBuffer = Array.isArray(buffer) ? buffer[0] : buffer; // Ensure we only take the first file
-  
+
       const blob = new Blob([firstBuffer], { type: "application/pdf" });
       const objectUrl = window.URL.createObjectURL(blob);
 
@@ -96,7 +97,18 @@ export default function PDFAnnotator() {
     return () => {
       NutrientViewer?.unload(container);
     };
-  }, [pdfFile?.file_url]); // ✅ No `downloadPdf` dependency
+  }, [pdfFile?.file_url]);
 
+  if (!pdfFile?.file_url)
+    return (
+      <div className="h-[90vh] w-full grid place-items-center">
+        <p>
+          No PDF to display.{" "}
+          <Link href={`/upload`} className="text-sm font-medium text-[#008080]">
+            Upload a PDF to start
+          </Link>
+        </p>
+      </div>
+    );
   return <div ref={containerRef} style={{ height: "90vh", width: "100%" }} />;
 }
