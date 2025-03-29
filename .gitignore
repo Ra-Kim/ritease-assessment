@@ -13,6 +13,8 @@
 # testing
 /coverage
 
+public/nutrient-viewer
+
 # next.js
 /.next/
 /out/
