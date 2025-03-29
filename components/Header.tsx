@@ -59,6 +59,15 @@ const Header = () => {
             >
               <p className="label-large">Upload PDF</p>
             </div>
+            <div
+              className="header-dropdown"
+              onClick={() => {
+                router.push("/pdf");
+                setOpen(false);
+              }}
+            >
+              <p className="label-large">PDF</p>
+            </div>
           </PopoverContent>
         </Popover>
       </div>
