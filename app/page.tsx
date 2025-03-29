@@ -26,7 +26,7 @@ export default function Home() {
     file_url: string;
   }) => {
     localStorage.setItem("pdf", JSON.stringify(pdf)); // Set clicked file as active
-    router.push("upload/pdf"); // Navigate to the PDF page
+    router.push("/pdf"); // Navigate to the PDF page
   };
 
   return (
