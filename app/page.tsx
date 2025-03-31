@@ -131,6 +131,7 @@ const Upload = () => {
           className={`w-full dark:bg-white dark:text-[#333] bg-gray-500 text-white cursor-pointer`}
           disabled={!preview.file_url}
           onClick={() => {
+            localStorage.removeItem('savedAnnotations')
             localStorage.setItem("pdf", JSON.stringify(preview));
             addToUploadedArray();
             router.push("/pdf");
