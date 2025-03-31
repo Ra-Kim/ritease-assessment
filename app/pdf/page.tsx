@@ -125,7 +125,7 @@ export default function PDFAnnotator() {
       <div className="h-[90vh] w-full grid place-items-center">
         <p>
           No PDF to display.{" "}
-          <Link href={`/upload`} className="text-sm font-medium text-[#008080]">
+          <Link href={`/`} className="text-sm font-medium text-[#008080]">
             Upload a PDF to start
           </Link>
         </p>
