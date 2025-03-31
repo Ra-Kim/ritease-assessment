@@ -4,6 +4,8 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import ToastProvider from "@/components/ToastProvider";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
 
 const poppins = Poppins({
@@ -32,6 +34,8 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.className} antialiased`}>
         <ToastProvider />
+        <SpeedInsights />
+        <Analytics />
         <div className="grid lg:grid-cols-[200px_1fr] h-screen">
           <Sidebar />
           <div className="grid grid-rows-[60px_1fr] ">
